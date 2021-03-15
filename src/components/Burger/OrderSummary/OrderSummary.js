@@ -1,31 +1,43 @@
-import React from 'react';
-import Aux from '../../../hoc/Aux';
+import React, { Component } from 'react';
+import Aux from '../../../hoc/Aux/Aux';
 import Button from '../../UI/Button/Button';
 
-const orderSummary = (props) => {
-  const ingredientSummary = Object.keys(props.ingredients) //it's an object
-    .map((igKey) => {
-      return (
-        <li key={igKey}>
-          <span style={{ textTransform: 'capitalize' }}>{igKey}</span>:{' '}
-          {props.ingredients[igKey]}
-        </li>
-      );
-    });
-  return (
-    <Aux>
-      <h3>Your Order</h3>
-      <p>A delicious burger with the following ingredients:</p>
-      <ul>{ingredientSummary}</ul>
-      <p>Continue to Checkout?</p>
-      <Button btnType='Danger' clicked={props.purchaseCancelled}>
-        CANCEL
-      </Button>
-      <Button btnType='Success' clicked={props.purchaseContinued}>
-        CONTINUE
-      </Button>
-    </Aux>
-  );
-};
+class OrderSummary extends Component {
+  //OrderSummary can be a FUNCTIONAL component
+  //componentWillUpdate log for debugging purposes and optimization => for that we need to use a class
+  componentWillUpdate() {
+    console.log('[ordersummary] Will Update');
+  }
 
-export default orderSummary;
+  render() {
+    const ingredientSummary = Object.keys(this.props.ingredients) //it's an object
+      .map((igKey) => {
+        return (
+          <li key={igKey}>
+            <span style={{ textTransform: 'capitalize' }}>{igKey}</span>:{' '}
+            {this.props.ingredients[igKey]}
+          </li>
+        );
+      });
+
+    return (
+      <Aux>
+        <h3>Your Order</h3>
+        <p>A delicious burger with the following ingredients:</p>
+        <ul>{ingredientSummary}</ul>
+        <p>
+          <strong>Total Price: {this.props.price}</strong>
+        </p>
+        <p>Continue to Checkout?</p>
+        <Button btnType='Danger' clicked={this.props.purchaseCancelled}>
+          CANCEL
+        </Button>
+        <Button btnType='Success' clicked={this.props.purchaseContinued}>
+          CONTINUE
+        </Button>
+      </Aux>
+    );
+  }
+}
+
+export default OrderSummary;
