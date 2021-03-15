@@ -8,11 +8,15 @@ class Modal extends Component {
   //updates first when we click order and modal appears, => Modal and orderSummary update
   //OrderSummary is within Modal in BurgerBuilder
   shouldComponentUpdate(nextProps, nextState) {
-    return nextProps.show !== this.props.show;
+    return (
+      nextProps.show !== this.props.show ||
+      nextProps.children !== this.props.children
+    ); //children -> it affects orderSummary, to show a spinner
   }
 
   componentWillUpdate() {
-    console.log('[Modal] WillUpdate');
+    // **testing
+    // console.log('[Modal] WillUpdate');
   }
 
   render() {

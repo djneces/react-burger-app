@@ -5,8 +5,9 @@ import Button from '../../UI/Button/Button';
 class OrderSummary extends Component {
   //OrderSummary can be a FUNCTIONAL component
   //componentWillUpdate log for debugging purposes and optimization => for that we need to use a class
+  //**testing
   componentWillUpdate() {
-    console.log('[ordersummary] Will Update');
+    // console.log('[ordersummary] Will Update');
   }
 
   render() {
