@@ -92,32 +92,26 @@ class BurgerBuilder extends Component {
   };
 
   purchaseContinueHandler = () => {
-    this.setState({ loading: true });
-    // alert('You continue');
-    const order = {
-      ingredients: this.state.ingredients,
-      //in production we calculate price on the server = avoid user data manipulation
-      price: this.state.totalPrice,
-      customer: {
-        name: 'John Doe',
-        address: {
-          street: 'Test street 1',
-          zipCode: 123,
-          country: 'CZ',
-        },
-        email: 'test@test.com',
-      },
-      deliveryMethod: 'fastest',
-    };
-    //firebase needs .json!!!
-    axios
-      .post('/orders.json', order)
-      .then((response) => {
-        this.setState({ loading: false, purchasing: false }); //after post, remove the spinner, purchasing: false -> closes modal
-      })
-      .catch((error) => {
-        this.setState({ loading: false, purchasing: false }); //remove spinner here, so user doesn't expect results
-      });
+    const queryParams = [];
+    for (let i in this.state.ingredients) {
+      //encodeURIComponent -> can be used in URL
+      //passing ingredients
+      queryParams.push(
+        encodeURIComponent(i) +
+          '=' +
+          encodeURIComponent(this.state.ingredients[i])
+      );
+    }
+
+    //passing price to Checkout -> ContactData
+    queryParams.push('price=' + this.state.totalPrice);
+
+    const queryString = queryParams.join('&');
+
+    this.props.history.push({
+      pathname: '/checkout',
+      search: '?' + queryString,
+    });
   };
 
   render() {

@@ -1,4 +1,6 @@
 import React from 'react';
+//to access special props like history, match etc. (Checkout, BurgerBuilder is loaded via Route, they have only access, not it's childs) ->we need withRouter
+import { withRouter } from 'react-router-dom';
 import classes from './Burger.css';
 import BurgerIngredient from './Burgeringredient/Burgeringredient';
 
@@ -29,4 +31,5 @@ const burger = (props) => {
   );
 };
 
-export default burger;
+//we wrap it here
+export default withRouter(burger);
