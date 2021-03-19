@@ -1,16 +1,29 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+//applyMiddleware for thunk, compose for devtools
+import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
+//thunk - middleware for async
+import thunk from 'redux-thunk';
 import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
-import { Provider } from 'react-redux';
-import { createStore } from 'redux';
 import burgerBuilderReducer from './store/reducers/burgerBuilder';
+import orderReducer from './store/reducers/order';
+
+//Enhancers for middleware (https://github.com/zalmoxisus/redux-devtools-extension#installation)
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+//combine reducers
+const rootReducer = combineReducers({
+  burgerBuilder: burgerBuilderReducer,
+  order: orderReducer,
+});
 
 //add Redux devtools to the store
 // prettier-ignore
-const store = createStore(burgerBuilderReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+const store = createStore(rootReducer, composeEnhancers(applyMiddleware(thunk)));
 
 //I could use BrowserRouter in App.js to instead
 const app = (

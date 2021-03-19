@@ -5,6 +5,8 @@ import Spinner from '../../../components/UI/Spinner/Spinner';
 import classes from './ContactData.css';
 import axios from '../../../axios-orders';
 import Input from '../../../components/UI/Input/Input';
+import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
+import * as actions from '../../../store/actions/index';
 
 class ContactData extends Component {
   state = {
@@ -85,20 +87,18 @@ class ContactData extends Component {
             { value: 'cheapest', displayValue: 'Cheapest' },
           ],
         },
-        value: '',
+        value: 'fastest',
         //valid and validation added so we don't get undefined in checkValidity and inputChangedHandler
         valid: true,
         validation: {},
       },
     },
-    loading: false,
     formIsValid: false, // to active the order btn
   };
 
   orderHandler = (event) => {
     event.preventDefault();
 
-    this.setState({ loading: true });
     const formData = {};
     //{name: 'John', street: 'test st' }
     for (let formElementIdentifier in this.state.orderForm) {
@@ -113,17 +113,8 @@ class ContactData extends Component {
       price: this.props.price,
       orderData: formData,
     };
-    //firebase needs .json!!!
-    axios
-      .post('/orders.json', order)
-      .then((response) => {
-        this.setState({ loading: false }); //after post, remove the spinner,
-        //we had to pass ...props from Checkout, so push works here (so we have access to history)
-        this.props.history.push('/');
-      })
-      .catch((error) => {
-        this.setState({ loading: false }); //remove spinner here, so user doesn't expect results
-      });
+
+    this.props.onOrderBurger(order);
   };
 
   checkValidity(value, rules) {
@@ -205,7 +196,7 @@ class ContactData extends Component {
       </form>
     );
 
-    if (this.state.loading) {
+    if (this.props.loading) {
       form = <Spinner />;
     }
     return (
@@ -219,9 +210,19 @@ class ContactData extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    ings: state.ingredients,
-    price: state.totalPrice,
+    //coming from burgerBuilder reducer
+    ings: state.burgerBuilder.ingredients,
+    price: state.burgerBuilder.totalPrice,
+    //coming from order reducer
+    loading: state.order.loading,
   };
 };
 
-export default connect(mapStateToProps)(ContactData);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onOrderBurger: (orderData) => dispatch(actions.purchaseBurger(orderData)),
+  };
+};
+
+//prettier-ignore
+export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler(ContactData, axios));

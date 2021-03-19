@@ -7,8 +7,8 @@ import Modal from '../../components/UI/Modal/Modal';
 import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
+import * as actions from '../../store/actions/index';
 import axios from '../../axios-orders';
-import * as burgerBuilderActions from '../../store/actions/index';
 
 class BurgerBuilder extends Component {
   //constructor(props) {
@@ -19,23 +19,12 @@ class BurgerBuilder extends Component {
   //Local state
   state = {
     purchasing: false, //modal
-    loading: false, //loading to show spinner
-    error: false, // axios get error
   };
 
   // set up the state dynamically - fetch data - componentDidMount
-  componentDidMount() {
-    //firebase needs .json!!!
-    // axios
-    //   .get('/ingredients.json')
-    //   .then((response) => {
-    //     this.setState({ ingredients: response.data });
-    //     this.updatePurchaseState(this.state.ingredients); //after fetch, check if any ingredients => set purchasable => affects the order btn
-    //   })
-    //   .catch((error) => {
-    //     this.setState({ error: true });
-    //   });
-  }
+  componentDidMount = () => {
+    this.props.onInitIngredients();
+  };
 
   updatePurchaseState = (ingredients) => {
     const sum = Object.keys(ingredients)
@@ -55,6 +44,7 @@ class BurgerBuilder extends Component {
   };
 
   purchaseContinueHandler = () => {
+    this.props.onInitPurchase();
     this.props.history.push('/checkout');
   };
 
@@ -70,7 +60,7 @@ class BurgerBuilder extends Component {
     let orderSummary = null;
 
     //set the spinner until we fetch data from the DB
-    let burger = this.state.error ? (
+    let burger = this.props.error ? (
       <p>Ingredients can't be loaded'</p>
     ) : (
       <Spinner />
@@ -102,10 +92,6 @@ class BurgerBuilder extends Component {
       );
     }
 
-    if (this.state.loading) {
-      orderSummary = <Spinner />;
-    }
-
     return (
       <Aux>
         <Modal
@@ -123,10 +109,11 @@ class BurgerBuilder extends Component {
 //which property receives which slice of state, we change local state for props in the code
 const mapStateToProps = (state) => {
   return {
-    //state.ingredients from the reducer
-    ings: state.ingredients,
+    //state.ingredients from the reducer => in burgerBuilder reducer
+    ings: state.burgerBuilder.ingredients,
     //we need to fetch the price from reducer
-    price: state.totalPrice,
+    price: state.burgerBuilder.totalPrice,
+    error: state.burgerBuilder.error,
   };
 };
 
@@ -134,10 +121,14 @@ const mapDispatchToProps = (dispatch) => {
   return {
     //dispatches an object
     // prettier-ignore
-    onIngredientAdded: (ingName) => dispatch(burgerBuilderActions.addIngredient(ingName)),
+    onIngredientAdded: (ingName) => dispatch(actions.addIngredient(ingName)),
 
     // prettier-ignore
-    onIngredientRemoved: (ingName) => dispatch(burgerBuilderActions.removeIngredient(ingName)),
+    onIngredientRemoved: (ingName) => dispatch(actions.removeIngredient(ingName)),
+
+    onInitIngredients: () => dispatch(actions.initIngredients()),
+
+    onInitPurchase: () => dispatch(actions.purchaseInit()),
   };
 };
 
