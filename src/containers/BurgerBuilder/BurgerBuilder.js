@@ -36,7 +36,14 @@ class BurgerBuilder extends Component {
   };
 
   purchaseHandler = () => {
-    this.setState({ purchasing: true });
+    if (this.props.isAuthenticated) {
+      this.setState({ purchasing: true });
+    } else {
+      //where should user go after (changes the path for the user after login)
+      this.props.onSetAuthRedirectPath('/checkout');
+      //history comes from React Router
+      this.props.history.push('/auth');
+    }
   };
 
   purchaseCancelHandler = () => {
@@ -77,6 +84,8 @@ class BurgerBuilder extends Component {
             //we need to execute when loads
             purchasable={this.updatePurchaseState(this.props.ings)}
             ordered={this.purchaseHandler}
+            //we can build burger, but after click on order btn proceeds only authenticated user
+            isAuth={this.props.isAuthenticated}
             price={this.props.price}
           />
         </Aux>
@@ -114,6 +123,7 @@ const mapStateToProps = (state) => {
     //we need to fetch the price from reducer
     price: state.burgerBuilder.totalPrice,
     error: state.burgerBuilder.error,
+    isAuthenticated: state.auth.token !== null,
   };
 };
 
@@ -129,6 +139,8 @@ const mapDispatchToProps = (dispatch) => {
     onInitIngredients: () => dispatch(actions.initIngredients()),
 
     onInitPurchase: () => dispatch(actions.purchaseInit()),
+    // prettier-ignore
+    onSetAuthRedirectPath: (path) => dispatch(actions.setAuthRedirectPath(path)),
   };
 };
 

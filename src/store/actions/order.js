@@ -25,13 +25,13 @@ export const purchaseBurgerStart = () => {
 };
 
 //async action creator, action we dispatch from the container, once we clicked the order btn
-export const purchaseBurger = (orderData) => {
+export const purchaseBurger = (orderData, token) => {
   //using redux thunk middleware
   return (dispatch) => {
     dispatch(purchaseBurgerStart());
     //firebase needs .json!!!
     axios
-      .post('/orders.json', orderData)
+      .post('/orders.json?auth=' + token, orderData)
       .then((response) => {
         dispatch(purchaseBurgerSuccess(response.data.name, orderData));
       })
@@ -69,11 +69,16 @@ export const fetchOrdersStart = () => {
   };
 };
 
-export const fetchOrders = () => {
+//we pass on the token in Orders/Orders
+export const fetchOrders = (token, userId) => {
   return (dispatch) => {
     dispatch(fetchOrdersStart()); //loading
+    //getting orders only for a specific user, url params as per firebase documentation
+    const queryParams =
+      '?auth=' + token + '&orderBy="userId"&equalTo="' + userId + '"';
     axios
-      .get('/orders.json')
+      //add token for auth, this is how we send the token to the backend
+      .get('/orders.json' + queryParams)
       .then((res) => {
         const fetchedOrders = [];
         //we transform the data from DB here in actions rather than in reducer, if I'd change backend (data format)=> need to change reducer

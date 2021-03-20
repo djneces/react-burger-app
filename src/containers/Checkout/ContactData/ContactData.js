@@ -48,7 +48,8 @@ class ContactData extends Component {
         validation: {
           required: true,
           minLength: 5,
-          maxLength: 7,
+          maxLength: 5,
+          isNumeric: true,
         },
         valid: false,
         touched: false,
@@ -75,6 +76,7 @@ class ContactData extends Component {
         value: '',
         validation: {
           required: true,
+          isEmail: true,
         },
         valid: false,
         touched: false,
@@ -112,24 +114,42 @@ class ContactData extends Component {
       //in production we calculate price on the server = avoid user data manipulation
       price: this.props.price,
       orderData: formData,
+      userId: this.props.userId,
     };
 
-    this.props.onOrderBurger(order);
+    this.props.onOrderBurger(order, this.props.token);
   };
 
   checkValidity(value, rules) {
     let isValid = true;
-    //Set of our rules
-    if (rules.required) {
-      isValid = value.trim() !== '' && isValid; // if input empty false, otherwise true
+    if (!rules) {
+      return true;
     }
+
+    if (rules.required) {
+      isValid = value.trim() !== '' && isValid;
+    }
+
     if (rules.minLength) {
       isValid = value.length >= rules.minLength && isValid;
     }
+
     if (rules.maxLength) {
-      //&& isValid so if the previous statement sets isValid to false, this doesn't apply a doesn't override to false to true
       isValid = value.length <= rules.maxLength && isValid;
     }
+
+    //email check
+    if (rules.isEmail) {
+      const pattern = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+      isValid = pattern.test(value) && isValid;
+    }
+
+    //numeric check
+    if (rules.isNumeric) {
+      const pattern = /^\d+$/;
+      isValid = pattern.test(value) && isValid;
+    }
+
     return isValid;
   }
 
@@ -215,12 +235,15 @@ const mapStateToProps = (state) => {
     price: state.burgerBuilder.totalPrice,
     //coming from order reducer
     loading: state.order.loading,
+    token: state.auth.token,
+    userId: state.auth.userId,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onOrderBurger: (orderData) => dispatch(actions.purchaseBurger(orderData)),
+    onOrderBurger: (orderData, token) =>
+      dispatch(actions.purchaseBurger(orderData, token)),
   };
 };
 
